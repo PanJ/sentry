@@ -13,7 +13,7 @@ import { Challenge, getChallenge } from "../index.js";
 export function listenForChallenges(callback: (challengeNumber: bigint, challenge: Challenge, event: any) => void, log: (log: string) => void = () => {}): () => void {
     let intervalId: NodeJS.Timeout;
     let refereeContract: ethers.Contract;
-    let provider: ethers.JsonRpcProvider;
+    let provider: ethers.JsonRpcProvider | ethers.WebSocketProvider | ethers.AlchemyProvider;
 
     const challengeNumberMap: { [challengeNumber: string]: boolean } = {};
 
@@ -29,7 +29,7 @@ export function listenForChallenges(callback: (challengeNumber: bigint, challeng
         }
 
         log(`[${new Date().toISOString()}] Creating provider and contract instance`);
-        provider = getProvider(undefined, true);
+        provider = getProvider("https://arb-mainnet.g.alchemy.com/v2/p_LSgTIj_JtEt3JPM7IZIZFL1a70yvQJ", true);
 
         refereeContract = new ethers.Contract(config.refereeAddress, RefereeAbi, provider);
 
@@ -56,6 +56,5 @@ export function listenForChallenges(callback: (challengeNumber: bigint, challeng
         log(`[${new Date().toISOString()}] Stopping listening for ChallengeSubmitted events`);
         clearInterval(intervalId);
         refereeContract.removeAllListeners("ChallengeSubmitted");
-        provider.removeAllListeners("error");
     };
 }
