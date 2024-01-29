@@ -42,6 +42,7 @@ export function resilientEventListener(args: ResilientEventListenerArgs) {
         args.log && args.log(`[${new Date().toISOString()}] subscribing to event listener with topic hash: ${topicHash}`);
 
         const request = {
+            jsonrpc: "2.0",
             id: 1,
             method: "eth_subscribe",
             params: [
@@ -55,8 +56,9 @@ export function resilientEventListener(args: ResilientEventListenerArgs) {
 
         // sending this backs should return a result of true
         const ping = {
+            jsonrpc: "2.0",
             id: 2,
-            method: "net_listening",
+            method: "net_version",
             params:[],
         };
 
@@ -85,7 +87,7 @@ export function resilientEventListener(args: ResilientEventListenerArgs) {
             if (parsedData?.id === request.id) {
                 subscriptionId = parsedData.result;
                 args.log && args.log(`[${new Date().toISOString()}] Subscription to event '${args.eventName}' established with subscription ID '${parsedData.result}'.`);
-            } else if(parsedData?.id === ping.id && parsedData?.result === true) { 
+            } else if(parsedData?.id === ping.id) {
                 args.log && args.log(`[${new Date().toISOString()}] Health check complete, subscription to '${args.eventName}' is still active.`)
                 if (pingTimeout) clearInterval(pingTimeout);
             } else if (parsedData?.method === 'eth_subscription' && parsedData.params.subscription === subscriptionId) {
