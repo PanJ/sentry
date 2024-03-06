@@ -23,6 +23,7 @@ import {ethers} from "ethers";
 import {BiLoaderAlt} from "react-icons/bi";
 import {useGetWalletBalance} from "@/hooks/useGetWalletBalance";
 import {useGetSingleWalletBalance} from "@/hooks/useGetSingleWalletBalance";
+import log from "electron-log";
 
 interface HasKeysProps {
 	combinedOwners: string[],
@@ -213,10 +214,10 @@ export function HasKeys({combinedOwners, combinedLicensesMap, statusMap, isWalle
 					}, 1500);
 				})
 				.catch(err => {
-					console.error('Unable to copy to clipboard: ', err);
+					log.error('Unable to copy to clipboard: ', err);
 				});
 		} else {
-			console.error('Clipboard API not available, unable to copy to clipboard');
+			log.error('Clipboard API not available, unable to copy to clipboard');
 		}
 	}
 
@@ -238,7 +239,7 @@ export function HasKeys({combinedOwners, combinedLicensesMap, statusMap, isWalle
 						<div>
 							<div
 								onClick={() => setIsOpen(!isOpen)}
-								className={`flex items-center justify-between w-[538px] border-[#A3A3A3] border-r border-l border-t ${!isOpen ? "border-b" : null} border-[#A3A3A3] p-2`}
+								className={`flex items-center justify-between w-[538px] border-[#A3A3A3] border-r border-l border-t ${!isOpen ? "border-b" : "pb-[9px]"} border-[#A3A3A3] p-2`}
 							>
 								<p>{selectedWallet || `All wallets (${Object.keys(combinedOwners).length})`}</p>
 								<IoIosArrowDown
@@ -309,7 +310,7 @@ export function HasKeys({combinedOwners, combinedLicensesMap, statusMap, isWalle
 								</Tooltip>
 							</div>
 							<div className="flex items-center gap-2 font-semibold">
-								<XaiLogo/>
+								<XaiLogo className="text-[#F30919]"/>
 								<div>
 									{singleWalletBalance ? (
 										<div className={`flex gap-1 items-end`}>
@@ -349,7 +350,7 @@ export function HasKeys({combinedOwners, combinedLicensesMap, statusMap, isWalle
 								</Tooltip>
 							</div>
 							<div className="flex items-center gap-2 font-semibold">
-								<XaiLogo/>
+								<XaiLogo className="text-[#F30919]"/>
 								<div>
 									{balances
 										?

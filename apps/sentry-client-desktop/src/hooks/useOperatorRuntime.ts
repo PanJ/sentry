@@ -1,8 +1,20 @@
-import {NodeLicenseInformation, NodeLicenseStatusMap, operatorRuntime} from "@sentry/core";
+import {Challenge, NodeLicenseInformation, NodeLicenseStatusMap, operatorRuntime, PublicNodeBucketInformation} from "@sentry/core";
 import {useOperator} from "@/features/operator";
 import {atom, useAtom} from "jotai";
 import {useEffect, useState} from "react";
 import {useStorage} from "@/features/storage";
+import log from "electron-log";
+
+function onAssertionMissMatch(publicNodeData: PublicNodeBucketInformation, challenge: Challenge, message: string) {
+	const errorMessage = `The comparison between public node and challenge failed:\n` +
+		`${message}\n\n` +
+		`Public node data:\n` +
+		`${JSON.stringify(publicNodeData, null, 2)}\n\n` +
+		`Challenge data:\n` +
+		`${JSON.stringify(challenge, null, 2)}\n`;
+
+	alert(errorMessage);
+}
 
 let stop: (() => Promise<void>) | undefined;
 export const sentryRunningAtom = atom(stop != null);
@@ -25,16 +37,20 @@ export function useOperatorRuntime() {
 		}
 	}, [signer]);
 
-	function writeLog(log: string) {
-		console.info(log); // for debugging purposes
-		const _logs = runtimeLogs.concat([]);
-		if (_logs.length === 1000) {
-			_logs.shift();
-		}
+    function writeLog(message: string) {
+        if (message.startsWith("Error")) {
+            log.error(message);
+        } else {
+            log.info(message);
+        }
+        const _logs = runtimeLogs.concat([]);
+        if (_logs.length === 1000) {
+            _logs.shift();
+        }
 
-		_logs.push(log);
-		setRuntimeLogs(_logs);
-	}
+        _logs.push(message);
+        setRuntimeLogs(_logs);
+    }
 
 	async function startRuntime() {
 		if (!sentryRunning && stop === undefined) {
@@ -42,7 +58,7 @@ export function useOperatorRuntime() {
 			await setData({...data, sentryRunning: true});
 
 			// @ts-ignore
-			stop = await operatorRuntime(signer, setNodeLicenseStatusMap, writeLog, whitelistedWallets);
+			stop = await operatorRuntime(signer, setNodeLicenseStatusMap, writeLog, whitelistedWallets, onAssertionMissMatch);
 			setRerender((_number) => _number + 1);
 		}
 	}
