@@ -257,7 +257,7 @@ async function processClosedChallenges(challengeIds: bigint[]) {
         try {
             await getSubmissionsForChallenges(challengeIds, nodeLicenseId, (submission: Submission, index: number) => {
                 lastProcessedChallengeIndex = index;
-                return onFoundClosedSubmission(challengeIds[index], nodeLicenseId, submission.submitted && !submission.claimed);
+                return onFoundClosedSubmission(challengeIds[index], nodeLicenseId, submission.submitted && submission.eligibleForPayout && !submission.claimed);
             });
         } catch (error: any) {
             cachedLogger(`Error processing submissions for Sentry Key ${nodeLicenseId} processed ${lastProcessedChallengeIndex}/${challengeIds.length} challenges - ${error && error.message ? error.message : error}`);
